@@ -1,0 +1,6 @@
+
+{
+  "name": "UniSupport Chatbot",
+  "description": "A generic educational chatbot with RAG capabilities and model switching.",
+  "requestFramePermissions": []
+}
