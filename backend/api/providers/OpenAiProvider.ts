@@ -1,12 +1,11 @@
 import OpenAI from 'openai';
-import { SYSTEM_INSTRUCTION } from '../../config/constants';
-import { retrieveContext } from '../../lib/retrival';
+import { RagService } from '../../services/RagService';
 import { AIProvider } from '../interfaces/AIProvider';
 
 // This class represents a specific implementation of an LLM provider.
 // It handles the specific API calls to OpenAI's service.
 export class OpenAiProvider implements AIProvider {
-  private client: OpenAI | null = null;
+  private ai: OpenAI | null = null;
   private modelName: string;
 
   constructor(modelName: string = 'gpt-4.1-mini') {
@@ -14,26 +13,23 @@ export class OpenAiProvider implements AIProvider {
   }
 
   private getClient(): OpenAI {
-    if (this.client) return this.client;
+    if (this.ai) return this.ai;
 
     const apiKey = process.env.OPENAI_API_KEY;
     if (!apiKey) throw new Error("OPENAI_API_KEY is missing for OpenAI Provider.");
 
-    this.client = new OpenAI({ apiKey });
-    return this.client;
+    this.ai = new OpenAI({ apiKey });
+    return this.ai;
   }
 
   public async generateResponse(message: string): Promise<string> {
-    const client = this.getClient();
+    const ai = this.getClient();
 
-    // 1. RAG STEP: Retrieve relevant context based on the user query
-    const relevantContext = retrieveContext(message);
-
-    // 2. PROMPT CONSTRUCTION: Inject retrieved context
-    const augmentedSystemInstruction = `${SYSTEM_INSTRUCTION}\n\n=== RETRIEVED CONTEXT ===\n${relevantContext || "(No relevant context found in Knowledge Base)"}`;
+    // Generate RAG response with context retrieval and prompt construction
+    const { prompt: augmentedSystemInstruction } = RagService.generateRagResponse(message);
 
     try {
-      const response = await client.chat.completions.create({
+      const response = await ai.chat.completions.create({
         model: this.modelName,
         messages: [
           { role: 'system', content: augmentedSystemInstruction },

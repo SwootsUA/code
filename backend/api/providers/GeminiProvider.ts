@@ -1,6 +1,5 @@
 import { GoogleGenAI } from "@google/genai";
-import { SYSTEM_INSTRUCTION } from '../../config/constants';
-import { retrieveContext } from '../../lib/retrival';
+import { RagService } from '../../services/RagService';
 import { AIProvider } from '../interfaces/AIProvider';
 
 // This class represents a specific implementation of an LLM provider.
@@ -17,9 +16,7 @@ export class GeminiProviderService implements AIProvider {
     if (this.ai) return this.ai;
 
     const apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey) {
-      throw new Error("GEMINI_API_KEY is missing for Gemini Provider.");
-    }
+    if (!apiKey) throw new Error("GEMINI_API_KEY is missing for Gemini Provider.");
 
     this.ai = new GoogleGenAI({ apiKey });
     return this.ai;
@@ -28,15 +25,10 @@ export class GeminiProviderService implements AIProvider {
   public async generateResponse(message: string): Promise<string> {
     const ai = this.getClient();
 
-    // 1. RAG STEP: Retrieve relevant context based on the user query
-    const relevantContext = retrieveContext(message);
-
-    // 2. PROMPT CONSTRUCTION: Inject retrieved context
-    const augmentedSystemInstruction = `${SYSTEM_INSTRUCTION}\n\n=== RETRIEVED CONTEXT ===\n${relevantContext || "(No relevant context found in Knowledge Base)"}`;
+    // Generate RAG response with context retrieval and prompt construction
+    const { prompt: augmentedSystemInstruction } = RagService.generateRagResponse(message);
 
     try {
-      // We use generateContent instead of chatSession for this stateless RAG demo
-      // ensuring every request is treated as a fresh query against the knowledge base.
       const result = await ai.models.generateContent({
         model: this.modelName,
         contents: message,
