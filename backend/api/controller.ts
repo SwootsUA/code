@@ -1,4 +1,3 @@
-
 import { ModelProvider } from '../types';
 import { ProviderFactory } from './ProviderFactory';
 
@@ -7,7 +6,7 @@ import { ProviderFactory } from './ProviderFactory';
 // It is now decoupled from specific provider implementations.
 
 // Default configuration (can be loaded from config file in real app)
-let currentProviderType = ModelProvider.GEMINI_FLASH;
+let currentProviderType: ModelProvider = process.env.PROVIDER_TYPE as ModelProvider || ModelProvider.OPENAI_GPT4;
 
 /**
  * Changes the active backend model.
@@ -30,12 +29,12 @@ export const processUserQuery = async (query: string): Promise<string> => {
   try {
     // Instantiate the provider using the factory
     const provider = ProviderFactory.createProvider(currentProviderType);
-    
+
     // Delegate execution to the provider
     return await provider.generateResponse(query);
   } catch (error) {
     console.error("[Server] Error processing query:", error);
-    
+
     // Fallback logic if needed (e.g., if Gemini fails, switch to Mock or error out)
     throw error;
   }

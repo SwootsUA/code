@@ -1,7 +1,6 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { Role, Message, ChatState } from './types';
-import { processUserQuery } from './api/controller';
 import MessageBubble from './components/chat/MessageBubble';
 import InputArea from './components/chat/InputArea';
 import Suggestions from './components/chat/Suggestions';
@@ -22,13 +21,6 @@ const App: React.FC = () => {
   });
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const [apiKeyMissing, setApiKeyMissing] = useState(false);
-
-  useEffect(() => {
-    if (!process.env.API_KEY) {
-      setApiKeyMissing(true);
-    }
-  }, []);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -54,8 +46,21 @@ const App: React.FC = () => {
     }));
 
     try {
-      // Call the backend controller
-      const responseText = await processUserQuery(text);
+      // Call the backend
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ message: text }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Server error');
+      }
+
+      const data = await response.json();
+      const responseText = data.reply;
 
       const newBotMessage: Message = {
         id: (Date.now() + 1).toString(),
@@ -77,17 +82,6 @@ const App: React.FC = () => {
       }));
     }
   };
-
-  if (apiKeyMissing) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-100 p-4">
-        <div className="bg-white p-8 rounded-xl shadow-lg max-w-md w-full text-center">
-          <h2 className="text-xl font-bold text-gray-900 mb-2">Потрібен API ключ</h2>
-          <p className="text-gray-600 mb-4">Будь ласка, налаштуйте Google Gemini API Key у середовищі.</p>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col font-sans">

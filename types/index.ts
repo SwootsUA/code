@@ -16,15 +16,3 @@ export interface ChatState {
   isLoading: boolean;
   error: string | null;
 }
-
-// Backend Configuration Types
-export enum ModelProvider {
-  GEMINI_FLASH = 'gemini-2.5-flash',
-  GEMINI_PRO = 'gemini-2.5-pro',
-  MOCK_MODEL = 'mock-server-response'
-}
-
-export interface BackendConfig {
-  activeProvider: ModelProvider;
-  temperature: number;
-}

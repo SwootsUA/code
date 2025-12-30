@@ -1,7 +1,6 @@
-
 import { GoogleGenAI } from "@google/genai";
 import { SYSTEM_INSTRUCTION } from '../../config/constants';
-import { retrieveContext } from '../../lib/retrieval';
+import { retrieveContext } from '../../lib/retrival';
 import { AIProvider } from '../interfaces/AIProvider';
 
 // This class represents a specific implementation of an LLM provider.
@@ -17,9 +16,9 @@ export class GeminiProviderService implements AIProvider {
   private getClient(): GoogleGenAI {
     if (this.ai) return this.ai;
 
-    const apiKey = process.env.API_KEY;
+    const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {
-      throw new Error("API Key is missing for Gemini Provider.");
+      throw new Error("GEMINI_API_KEY is missing for Gemini Provider.");
     }
 
     this.ai = new GoogleGenAI({ apiKey });
@@ -28,10 +27,10 @@ export class GeminiProviderService implements AIProvider {
 
   public async generateResponse(message: string): Promise<string> {
     const ai = this.getClient();
-    
+
     // 1. RAG STEP: Retrieve relevant context based on the user query
     const relevantContext = retrieveContext(message);
-    
+
     // 2. PROMPT CONSTRUCTION: Inject retrieved context
     const augmentedSystemInstruction = `${SYSTEM_INSTRUCTION}\n\n=== RETRIEVED CONTEXT ===\n${relevantContext || "(No relevant context found in Knowledge Base)"}`;
 

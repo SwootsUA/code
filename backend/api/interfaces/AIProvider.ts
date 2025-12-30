@@ -1,4 +1,3 @@
-
 export interface AIProvider {
   /**
    * Generates a response based on the user's query.
