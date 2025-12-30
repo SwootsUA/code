@@ -15,6 +15,7 @@ export class ProviderFactory {
       case ModelProvider.GEMINI_PRO:
         return new GeminiProviderService(providerType);
 
+      case ModelProvider.OPENAI_GPT5:
       case ModelProvider.OPENAI_GPT4:
         return new OpenAiProvider(providerType);
 

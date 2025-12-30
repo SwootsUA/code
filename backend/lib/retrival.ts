@@ -1,4 +1,3 @@
-
 import { knowledgeBaseData } from '../data/knowledgeBase';
 
 interface KnowledgeChunk {
@@ -20,18 +19,10 @@ export const retrieveContext = (query: string): string => {
     let score = 0;
 
     // 1. Keyword match in 'keywords' array (Higher weight)
-    chunk.keywords.forEach(kw => {
-      if (normalizedQuery.includes(kw.toLowerCase())) {
-        score += 5;
-      }
-    });
+    chunk.keywords.forEach(kw => score += normalizedQuery.includes(kw.toLowerCase()) ? 5 : 0);
 
     // 2. Token match in content (Lower weight)
-    queryTokens.forEach(token => {
-      if (chunk.content.toLowerCase().includes(token)) {
-        score += 1;
-      }
-    });
+    queryTokens.forEach(token => score += chunk.content.toLowerCase().includes(token) ? 1 : 0);
 
     return { ...chunk, score };
   });
@@ -40,11 +31,9 @@ export const retrieveContext = (query: string): string => {
   const relevantChunks = scoredChunks
     .filter(chunk => chunk.score > 0)
     .sort((a, b) => b.score - a.score)
-    .slice(0, 3); // Take top 3 most relevant chunks
+    .slice(0, 5); // Take top 5 most relevant chunks
 
-  if (relevantChunks.length === 0) {
-    return ""; // No relevant context found
-  }
+  if (relevantChunks.length === 0) return ""; // No relevant context found
 
   // Format relevant chunks into a single string
   return relevantChunks

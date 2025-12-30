@@ -1,9 +1,7 @@
 
 import React from 'react';
 
-interface SuggestionsProps {
-  onSelect: (text: string) => void;
-}
+interface SuggestionsProps { onSelect: (text: string) => void }
 
 const Suggestions: React.FC<SuggestionsProps> = ({ onSelect }) => {
   const suggestions = [
@@ -32,6 +30,6 @@ const Suggestions: React.FC<SuggestionsProps> = ({ onSelect }) => {
       </div>
     </div>
   );
-};
+}
 
-export default Suggestions;
+export default Suggestions

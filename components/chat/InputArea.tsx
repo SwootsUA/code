@@ -14,9 +14,7 @@ const InputArea: React.FC<InputAreaProps> = ({ onSend, disabled }) => {
     if (input.trim() && !disabled) {
       onSend(input);
       setInput('');
-      if (textareaRef.current) {
-        textareaRef.current.style.height = 'auto';
-      }
+      if (textareaRef.current) textareaRef.current.style.height = 'auto';
     }
   };
 
