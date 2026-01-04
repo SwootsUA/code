@@ -1,3 +1,4 @@
+import { Request, Response } from 'express';
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
@@ -11,11 +12,9 @@ const port = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
-app.post('/api/chat', async (req, res) => {
+app.post('/api/chat', async (req: Request, res: Response) => {
   const { message } = req.body;
-  if (!message) {
-    return res.status(400).json({ error: 'Message is required' });
-  }
+  if (!message) return res.status(400).json({ error: 'Message is required' });
 
   try {
     const reply = await processUserQuery(message);
@@ -26,6 +25,4 @@ app.post('/api/chat', async (req, res) => {
   }
 });
 
-app.listen(port, () => {
-  console.log(`Server running on port ${port}`);
-});
+app.listen(port, () => console.log(`Server running on port ${port}`));
