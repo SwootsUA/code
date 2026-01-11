@@ -1,17 +1,23 @@
 import { ModelProvider } from '../types';
 import { ProviderFactory } from './ProviderFactory';
 
-// === BACKEND CONTROLLER ===
-// This file simulates a Node.js server controller.
-// It is now decoupled from specific provider implementations.
+function parseProviderType(raw: string | undefined): ModelProvider {
+  if (!raw) return ModelProvider.OPENAI_GPT4;
 
-// Default configuration (can be loaded from config file in real app)
-let currentProviderType: ModelProvider = process.env.PROVIDER_TYPE as ModelProvider || ModelProvider.OPENAI_GPT4;
+  // Accept either enum values (e.g., 'gpt-4.1-mini') or enum keys (e.g., 'OPENAI_GPT4')
+  const values = Object.values(ModelProvider);
+  if (values.includes(raw as ModelProvider)) return raw as ModelProvider;
 
-/**
- * Changes the active backend model.
- * In a real server, this might be a per-request configuration or a global setting.
- */
+  const key = raw.trim().toUpperCase();
+  const byKey = (ModelProvider as any)[key];
+  if (byKey && values.includes(byKey)) return byKey as ModelProvider;
+
+  console.warn(`[Server] Unknown PROVIDER_TYPE="${raw}". Falling back to ${ModelProvider.OPENAI_GPT4}.`);
+  return ModelProvider.OPENAI_GPT4;
+}
+
+let currentProviderType: ModelProvider = parseProviderType(process.env.PROVIDER_TYPE);
+
 export const setBackendModel = (provider: ModelProvider) => {
   console.log(`[Server] Switching model to: ${provider}`);
   currentProviderType = provider;
@@ -19,23 +25,14 @@ export const setBackendModel = (provider: ModelProvider) => {
 
 export const getBackendModel = () => currentProviderType;
 
-/**
- * Main entry point for processing user queries.
- * Routes the request to the currently active provider.
- */
 export const processUserQuery = async (query: string): Promise<string> => {
   console.log(`[Server] Processing query: "${query}" using provider: ${currentProviderType}`);
 
   try {
-    // Instantiate the provider using the factory
     const provider = ProviderFactory.createProvider(currentProviderType);
-
-    // Delegate execution to the provider
     return await provider.generateResponse(query);
   } catch (error) {
-    console.error("[Server] Error processing query:", error);
-
-    // Fallback logic if needed (e.g., if Gemini fails, switch to Mock or error out)
+    console.error('[Server] Error processing query:', error);
     throw error;
   }
 };
