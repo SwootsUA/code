@@ -1,0 +1,40 @@
+name: Render benchmark graphs
+
+on:
+  push:
+    paths:
+      - "backend/bench-latency.json"
+      - "backend/bench-parallel.json"
+      - "tools/render_bench.py"
+      - ".github/workflows/bench-report.yml"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install matplotlib
+
+      - name: Render charts + summary
+        run: python tools/render_bench.py
+
+      - name: Commit generated files
+        uses: EndBug/add-and-commit@v9
+        with:
+          add: "docs/bench"
+          message: "Update benchmark graphs"
+          default_author: github_actions
