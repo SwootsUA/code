@@ -34,9 +34,9 @@ app.use(
 );
 
 // ---- Rate limiting ----
-// In-memory limiter: defaults to 10 requests per minute per IP for /api/*
-const rateWindowMs = Number(process.env.RATE_LIMIT_WINDOW_MS || 60_000);
-const rateMax = Number(process.env.RATE_LIMIT_MAX || 10);
+// In-memory limiter: defaults to 60 requests per minute per IP for /api/*
+const rateWindowMs = Number(process.env.RATE_LIMIT_WINDOW_MS || 60000);
+const rateMax = Number(process.env.RATE_LIMIT_MAX || 60);
 
 app.use('/api/', createRateLimiter({ windowMs: rateWindowMs, max: rateMax }));
 app.use(express.json());
