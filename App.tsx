@@ -37,38 +37,27 @@ const App: React.FC = () => {
       text: text,
       timestamp: new Date(),
     };
-
     setChatState((prev) => ({
       ...prev,
       messages: [...prev.messages, newUserMessage],
       isLoading: true,
       error: null,
     }));
-
     try {
-      // Call the backend
       const response = await fetch('/api/chat', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message: text }),
       });
-
-      if (!response.ok) {
-        throw new Error('Server error');
-      }
-
+      if (!response.ok) throw new Error('Server error');
       const data = await response.json();
       const responseText = data.reply;
-
       const newBotMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: Role.MODEL,
         text: responseText,
         timestamp: new Date(),
       };
-
       setChatState((prev) => ({
         ...prev,
         messages: [...prev.messages, newBotMessage],

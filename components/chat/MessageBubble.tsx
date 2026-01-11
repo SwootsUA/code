@@ -4,7 +4,6 @@ import ReactMarkdown from 'react-markdown';
 import { Message, Role } from '../../types';
 
 interface MessageBubbleProps { message: Message; }
-
 const MessageBubble: React.FC<MessageBubbleProps> = ({ message }) => {
   const isUser = message.role === Role.USER;
 
