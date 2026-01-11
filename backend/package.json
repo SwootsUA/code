@@ -4,8 +4,10 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "start": "node server.js",
-    "dev": "tsx --watch server.js"
+    "start": "tsx server.ts",
+    "dev": "tsx --watch server.ts",
+    "bench:latency": "npx -y autocannon -c 1 -d 30 -m POST -H \"Content-Type: application/json\" -b '{\"message\":\"This is a test message\"}' http://localhost:5000/api/chat",
+    "bench:parallel": "npx -y autocannon -c 5 -d 30 -m POST -H \"Content-Type: application/json\" -b '{\"message\":\"This is a test message\"}' http://localhost:5000/api/chat"
   },
   "dependencies": {
     "express": "^4.18.2",
